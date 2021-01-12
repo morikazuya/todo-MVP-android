@@ -13,5 +13,8 @@ class MainActivity : AppCompatActivity() {
         toolbar.setTitleTextColor(getColor(R.color.white))
         setSupportActionBar(toolbar)
 
+        supportFragmentManager.beginTransaction().apply {
+            replace(R.id.contentFrame, MainFragment.newInstance())
+        }.commit()
     }
 }
