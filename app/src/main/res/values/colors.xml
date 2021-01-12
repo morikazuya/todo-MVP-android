@@ -12,4 +12,8 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
 
+    <color name="todo">#F80</color>
+    <color name="doing">#08F</color>
+    <color name="done">#888</color>
+
 </resources>
