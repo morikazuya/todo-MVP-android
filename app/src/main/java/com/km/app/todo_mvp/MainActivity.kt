@@ -16,5 +16,6 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.contentFrame, MainFragment.newInstance())
         }.commit()
+
     }
 }
