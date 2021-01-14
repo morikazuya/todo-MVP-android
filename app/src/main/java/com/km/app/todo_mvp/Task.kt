@@ -14,5 +14,5 @@ class Task (
     val state: Int, //状態
 
     @ColumnInfo(name = "description")
-    val description: String //タスク内容
+    var description: String //タスク内容
         )

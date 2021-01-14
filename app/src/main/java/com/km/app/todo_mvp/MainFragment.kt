@@ -11,6 +11,9 @@ import androidx.core.content.ContextCompat
 
 class MainFragment : Fragment() {
 
+    private lateinit var dao: TaskDao
+    private lateinit var adapter: TasksAdapter
+
     companion object {
         fun newInstance() = MainFragment()
     }
@@ -26,27 +29,31 @@ class MainFragment : Fragment() {
 
         val fab: View = view.findViewById(R.id.addTaskButton)
         fab.setOnClickListener {
-            Toast.makeText(activity, "Add Tapped", Toast.LENGTH_SHORT).show()
+            val newTask = Task(0, 0, "New Task")
+            dao.insert(newTask)
+
+            adapter.tasks = dao.getAll()
         }
 
-        // TODO ダミーデータ
-        val tasks = arrayListOf<Task>()
-        val task1 = Task(0, 0, "Task1")
-        val task2 = Task(1, 0, "Task2")
-        val task3 = Task(2, 1, "Task3")
-        val task4 = Task(3, 2, "Task4")
-        val task5 = Task(4, 2, "Task5")
-        tasks.add(task1)
-        tasks.add(task2)
-        tasks.add(task3)
-        tasks.add(task4)
-        tasks.add(task5)
+        val context = context?: return
+
+        val db = TaskDatabase.getInstance(context)
+        dao = db.taskDao()
+
+        val tasks = dao.getAll()
 
         val listView = view.findViewById<ListView>(R.id.listView)
-        listView.adapter = TasksAdapter(tasks, itemListener)
+        adapter = TasksAdapter(tasks, itemListener)
+        listView.adapter = adapter
     }
 
-    private class TasksAdapter(private val tasks: List<Task>, private val listener: TaskItemListener): BaseAdapter() {
+    private class TasksAdapter(tasks: List<Task>, private val listener: TaskItemListener): BaseAdapter() {
+
+        var tasks: List<Task> = tasks
+            set(tasks) {
+                field = tasks
+                notifyDataSetChanged()
+            }
 
         private val stateTexts = listOf(R.string.todo, R.string.doing, R.string.done)
         private val stateColors = listOf(R.color.todo, R.color.doing, R.color.done)
@@ -58,7 +65,7 @@ class MainFragment : Fragment() {
         override fun getItemId(i: Int) = i.toLong()
 
         override fun getView(i: Int, view: View?, viewGroup: ViewGroup?): View {
-            val task = getItem(i)
+            var task = getItem(i)
             val rowView = view ?: LayoutInflater.from(viewGroup?.context).inflate(R.layout.task_item, viewGroup, false)
             rowView.findViewById<TextView>(R.id.taskState).apply {
                 text = context.getString(stateTexts[task.state])
@@ -97,11 +104,14 @@ class MainFragment : Fragment() {
         }
 
         override fun onDescriptionClick(task: Task) {
-            Toast.makeText(activity, "onDescriptionClick : " + task.description, Toast.LENGTH_SHORT).show()
+            task.description = "Updated Task"
+            dao.update(task)
+            adapter.tasks = dao.getAll()
         }
 
         override fun onDeleteClick(task: Task) {
-            Toast.makeText(activity, "onDeleteClick : " + task.description, Toast.LENGTH_SHORT).show()
+            dao.delete(task)
+            adapter.tasks = dao.getAll()
         }
     }
 
