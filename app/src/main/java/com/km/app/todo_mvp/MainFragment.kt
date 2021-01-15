@@ -1,5 +1,6 @@
 package com.km.app.todo_mvp
 
+import android.app.AlertDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -39,7 +40,23 @@ class MainFragment : Fragment(), TaskContract.View {
 
         val fab: View = view.findViewById(R.id.addTaskButton)
         fab.setOnClickListener {
-            presenter.insertTask("New Task")
+            val editText = EditText(context).apply {
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            }
+
+            val container = LinearLayout(context).apply {
+                setPadding(48, 0, 48, 0)
+                addView(editText)
+            }
+
+            AlertDialog.Builder(context)
+                .setTitle(getString(R.string.add_dialog_title))
+                .setView(container)
+                .setPositiveButton(getString(R.string.ok), { dialog, which ->
+                    presenter.insertTask(editText.text.toString())
+                })
+                .setNegativeButton(getString(R.string.cancel), null)
+                .show()
         }
     }
 
@@ -108,7 +125,26 @@ class MainFragment : Fragment(), TaskContract.View {
         }
 
         override fun onDescriptionClick(task: Task) {
-            presenter.updateTaskDescription(task, "Update Task")
+            val context = context?: return
+
+            val editText = EditText(context).apply {
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                setText(task.description)
+            }
+
+            val container = LinearLayout(context).apply {
+                setPadding(48, 0, 48, 0)
+                addView(editText)
+            }
+
+            AlertDialog.Builder(context)
+                .setTitle(getString(R.string.edit_dialog_title))
+                .setView(container)
+                .setPositiveButton(getString(R.string.ok), { dialog, which ->
+                    presenter.updateTaskDescription(task, editText.text.toString())
+                })
+                .setNegativeButton(getString(R.string.cancel), null)
+                .show()
         }
 
         override fun onDeleteClick(task: Task) {
