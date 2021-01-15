@@ -11,10 +11,6 @@ import androidx.core.content.ContextCompat
 
 class MainFragment : Fragment(), TaskContract.View {
 
-    override fun onLoadTasks(tasks: List<Task>) {
-        adapter.tasks = tasks
-    }
-
     private lateinit var adapter: TasksAdapter
     private lateinit var presenter: TaskPresenter
 
@@ -38,13 +34,21 @@ class MainFragment : Fragment(), TaskContract.View {
         listView.adapter = adapter
 
         val db = TaskDatabase.getInstance(context)
-        presenter = TaskPresenter(db.taskDao(), this)
+        presenter = TaskPresenter(TaskRepository(db.taskDao()), this)
         presenter.loadTasks()
 
         val fab: View = view.findViewById(R.id.addTaskButton)
         fab.setOnClickListener {
             presenter.insertTask("New Task")
         }
+    }
+
+    override fun onLoadTasks(tasks: List<Task>) {
+        adapter.tasks = tasks
+    }
+
+    override fun showError(message: String?) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
     private class TasksAdapter(private val listener: TaskItemListener): BaseAdapter() {
